@@ -1,13 +1,14 @@
 
 import streamlit as st
 from streamlit_drawable_canvas import st_canvas
+from tensorflow.keras.models import load_model
 from PIL import Image
 import numpy as np
 import pickle
 
 # Load your trained MNIST model
 with open("image_classification.pkl", "rb") as f:
-    model = pickle.load(f)
+   model = load_model("image_classification.pkl") 
 
 st.set_page_config(page_title="MNIST Digit Classifier", layout="centered")
 st.title("🧠 MNIST Digit Classifier")
