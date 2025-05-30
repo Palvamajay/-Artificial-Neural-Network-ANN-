@@ -6,7 +6,8 @@ import numpy as np
 import pickle
 
 # Load your trained MNIST model
-model = load_model("image_classification.pkl") 
+with open("image_classification.pkl", "rb") as f:
+    model = pickle.load(f)
 
 st.set_page_config(page_title="MNIST Digit Classifier", layout="centered")
 st.title("🧠 MNIST Digit Classifier")
