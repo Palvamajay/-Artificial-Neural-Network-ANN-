@@ -1,7 +1,6 @@
 
 import streamlit as st
 from streamlit_drawable_canvas import st_canvas
-from tensorflow.keras.models import load_model
 from PIL import Image
 import numpy as np
 import pickle
