@@ -1,40 +1,36 @@
 
 import streamlit as st
-from streamlit_drawable_canvas import st_canvas
-from PIL import Image
 import numpy as np
-import pickle
+import tensorflow as tf
+from tensorflow.keras.models import load_model
+from PIL import Image
 
-# Load your trained MNIST model
-model = load_model("mnist.keras")
+# Load the trained model
+model = load_model("mnist.h5")
 
+# Streamlit UI
+st.title("🖊️ MNIST Handwritten Digit Recognition")
+st.write("Upload an image of a handwritten digit (0-9)")
 
-st.set_page_config(page_title="MNIST Digit Classifier", layout="centered")
-st.title("🧠 MNIST Digit Classifier")
-st.write("Draw a digit (0–9) below and let the model predict it.")
+# Upload Image
+uploaded_file = st.file_uploader("Choose an image...", type=["png", "jpg", "jpeg"])
 
-# Create a canvas for drawing
-canvas_result = st_canvas(
-    fill_color="#000000",
-    stroke_width=10,
-    stroke_color="#FFFFFF",
-    background_color="#000000",
-    width=280,
-    height=280,
-    drawing_mode="freedraw",
-    key="canvas"
-)
+def preprocess_image(image):
+    image = image.convert("L")  # Convert to grayscale
+    image = image.resize((28, 28))  # Resize to 28x28
+    image = np.array(image)  # Convert to NumPy array
+    image = image / 255.0  # Normalize (0 to 1)
+    image = 1 - image  # Invert colors (MNIST format)
+    image = image.reshape(1, 28, 28, 1)  # Reshape for model input
+    return image
 
-if canvas_result.image_data is not None:
-    img = canvas_result.image_data
+if uploaded_file is not None:
+    image = Image.open(uploaded_file)
+    st.image(image, caption="Uploaded Image", use_column_width=True)
 
-    # Preprocess image: convert to 28x28 grayscale
-    img = Image.fromarray((img[:, :, 0]).astype('uint8'))  # Take only 1 channel
-    img = img.resize((28, 28)).convert('L')  # Resize and convert to grayscale
-    img_arr = np.array(img) / 255.0          # Normalize
-    img_arr = img_arr.reshape(1, 28, 28)  # Reshape for model input to match the training data shape
+    processed_img = preprocess_image(image)
+    prediction = model.predict(processed_img)
+    predicted_digit = np.argmax(prediction)
 
-    if st.button("Predict"):
-        pred = model.predict(img_arr)
-        st.subheader(f"🧾 Prediction: {np.argmax(pred)}")
-        st.bar_chart(pred[0])
+    # Show result
+    st.write(f"🖊️ Predicted Digit: **{predicted_digit}**")
